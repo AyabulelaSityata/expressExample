@@ -48,19 +48,22 @@ app.get("/about", (req, res) => {
 // });
 
 // RETRIEVING A SINGLE USER
-app.get("/user", (req, res) => {
+app.get("/user/:id", (req, res) => {
     const query = `
-      SELECT userID, firstName, lastName 
-      FROM Users;
-      `;
+        SELECT userID, firstName, lastName
+        FROM Users
+        WHERE userID = ${req.params.id};
+    `
     db.query(query, (err, data) => {
-      if (err) throw err;
-      res.json({
-        status: res.statusCode,
-        results: data,
-      });
-    });
-  });
+        if(err) throw err
+        res.json(
+            {
+                status: res.statusCode,
+                results: data
+            }
+        )
+    })
+});
 
 // registering a new user
 app.post("/register", bodyParser.json(), (req, res) => {
@@ -77,6 +80,7 @@ app.post("/register", bodyParser.json(), (req, res) => {
   });
 });
 
+//retrieving all users: same as the previous example
 app.get('/users', (req, res) => {
     const query = `
     SELECT userID, firstName, lastName
@@ -89,6 +93,57 @@ app.get('/users', (req, res) => {
                     results: data
                 }
             )
+    })
+})
+// Put => Update
+// app.put('/user/:id', bodyParser.json(), (req, res) => {
+//     const query = `
+//         UPDATE Users Set ?
+//         WHERE userID = ?;
+//     `
+//     db.query(query, [req.body, req.params.id], (err) => {
+//         if(err) throw err
+//         res.json(
+//             {
+//                 status: res.statusCode,
+//                 msg: "The user record is updated."
+//             }
+//         )
+//     })
+// })
+
+// Patch => Update
+app.patch('/user/:id', bodyParser.json(), (req, res) => {
+    const query = `
+        UPDATE Users
+        Set ?
+        WHERE userID = ${req.params.id};
+    `
+    db.query(query, [req.body, req.params.id], (err) => {
+        if(err) throw err
+        res.json(
+            {
+                status: res.statusCode,
+                msg: "The record has been updated."
+            }
+        )
+    })
+})
+
+// delete
+app.delete('/user/:id', (req, res) => {
+    const query = `
+        DELETE FROM Users
+        WHERE userID = ${req.params.id};
+    `
+    db.query(query, (err) => {
+        if(err) throw err
+        res.json(
+            {
+                status: res.statusCode,
+                msg: "The user record has been deleted."
+            }
+        )
     })
 })
 
